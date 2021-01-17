@@ -2,9 +2,16 @@ import torch
 import torch.nn as nn
 
 from zoo.common import * 
-# class Flatten(nn.Module):
-    # def forward(self, input):
-        # return input.view(input.size(0), -1)
+from torchvision.models.resnet import resnet18 as _resnet18
+
+def resnet18(pretrained=False, **kwargs):
+    """ # This docstring shows up in hub.help()
+    Resnet18 model
+    pretrained (bool): kwargs, load pretrained weights into the model
+    """
+    # Call the model, load pretrained weights
+    model = _resnet18(pretrained=pretrained, **kwargs)
+    return model
 
 class baselineModel(nn.Sequential):
     def __init__(self):
@@ -69,5 +76,16 @@ class leakyModel(nn.Sequential):
         self.add_module("Dropout", nn.Dropout(p=0.3))
         self.add_module("Linear", nn.Linear(2*2*256, self.num_classes))
     
+    def forward(self, V):
+        return super().forward(V).squeeze()
+
+class resnet18Model(nn.Sequential):
+    def __init__(self):
+      super().__init__()
+      self.num_classes = 10
+
+      self.add_module("Resnet", resnet18())
+      self.add_module("Linear", nn.Linear(1000, self.num_classes))
+      
     def forward(self, V):
         return super().forward(V).squeeze()
